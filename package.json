@@ -1,0 +1,43 @@
+{
+  "name": "se_project_wili_backend",
+  "version": "0.1.0",
+  "description": "Backend for WILI - Would I Like It? application.",
+  "main": "app.js",
+  "scripts": {
+    "lint": "npx eslint .",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Denner25/se_project_wili_backend.git"
+  },
+  "author": "Denner Cardoso",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Denner25/se_project_wili_backend/issues"
+  },
+  "homepage": "https://github.com/Denner25/se_project_wili_backend#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "celebrate": "^15.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.1",
+    "express-winston": "^4.2.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.1",
+    "validator": "^13.15.15",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.10.0",
+    "eslint-plugin-import": "^2.32.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^2.8.8"
+  }
+}
