@@ -3,6 +3,11 @@ const validator = require("validator");
 
 const itemSchema = new mongoose.Schema(
   {
+    _id: {
+      // Use TMDb numeric ID as Mongo _id
+      type: Number,
+      required: true,
+    },
     title: {
       type: String,
       required: [true, "Title is required"],
@@ -24,16 +29,12 @@ const itemSchema = new mongoose.Schema(
       },
     },
     length: {
-      type: String, // e.g. "120 min" or "12 ep • 24 min"
+      type: String,
       default: null,
     },
     tags: {
       type: [String],
       default: [],
-    },
-    tmdbId: {
-      type: Number,
-      required: true,
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
@@ -41,7 +42,7 @@ const itemSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true, _id: false }
 );
 
 module.exports = mongoose.model("Item", itemSchema);

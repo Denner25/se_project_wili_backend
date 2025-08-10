@@ -1,21 +1,27 @@
 const router = require("express").Router();
 const {
-  getItems,
   createItem,
-  deleteItem,
+  importFromTmdb,
   updateItem,
   updateItemTags,
+  deleteItem,
+  getTmdbKeywords,
 } = require("../controllers/items");
 const {
-  validateItemBody,
+  validateItem,
+  validateTags,
   validateId,
-  validateItemTags,
 } = require("../middlewares/validation");
 
-router.get("/", getItems);
-router.post("/", validateItemBody, createItem);
-router.patch("/:itemId", validateItemBody, validateId, updateItem);
-router.patch("/:itemId/tags", validateItemTags, updateItemTags);
+// No auth here, since handled upstream
+
+router.post("/", validateItem, createItem);
+router.post("/import-tmdb", importFromTmdb);
+router.patch("/:itemId", validateId, updateItem);
+router.patch("/:itemId/tags", validateTags, updateItemTags);
+
+// Endpoint to fetch TMDB keywords for a given tmdbId and mediaType
+router.get("/tmdb-keywords", getTmdbKeywords);
 router.delete("/:itemId", validateId, deleteItem);
 
 module.exports = router;
