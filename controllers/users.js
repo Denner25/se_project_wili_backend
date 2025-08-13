@@ -49,10 +49,10 @@ const getCurrentUser = (req, res, next) => {
 
 // PATCH /users/me
 const updateProfile = (req, res, next) => {
-  const { name } = req.body;
+  const { name, avatarUrl } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
-    { name },
+    { name, avatarUrl },
     { new: true, runValidators: true }
   )
     .orFail(() => new NotFoundError(ERROR_MESSAGES.NOT_FOUND))

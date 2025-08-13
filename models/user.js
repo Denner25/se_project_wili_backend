@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema(
       minlength: [8, "Password must be at least 8 characters long"],
       select: false, // Do not return password by default
     },
+    avatarUrl: {
+      type: String,
+      default: "", // or a default DiceBear URL
+    },
   },
   { timestamps: true }
 );
