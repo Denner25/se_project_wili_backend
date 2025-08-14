@@ -1,46 +1,30 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
+// Subdocument for each mood
+const moodSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true, maxlength: 30 },
+    users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  },
+  { _id: false }
+);
+
 const itemSchema = new mongoose.Schema(
   {
-    _id: {
-      // Use TMDb numeric ID as Mongo _id
-      type: Number,
-      required: true,
-    },
-    title: {
-      type: String,
-      required: [true, "Title is required"],
-      trim: true,
-    },
-    mediaType: {
-      type: String,
-      enum: ["movie", "tv", "anime"],
-      required: [true, "Media type is required"],
-    },
+    _id: { type: Number, required: true }, // TMDb numeric ID
+    title: { type: String, required: true, trim: true },
+    mediaType: { type: String, enum: ["movie", "tv", "anime"], required: true },
     poster: {
       type: String,
       default: null,
       validate: {
-        validator: function (v) {
-          return !v || validator.isURL(v);
-        },
+        validator: (v) => !v || validator.isURL(v),
         message: "Poster must be a valid URL",
       },
     },
-    length: {
-      type: String,
-      default: null,
-    },
-    tags: {
-      type: [String],
-      default: [],
-    },
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    length: { type: String, default: null },
+    moods: { type: [moodSchema], default: [] }, // Likes-style
   },
   { timestamps: true, _id: false }
 );

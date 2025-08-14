@@ -3,25 +3,32 @@ const {
   createItem,
   importFromTmdb,
   updateItem,
-  updateItemTags,
+  updateItemMoods, // new controller for likes-style moods
   deleteItem,
   getTmdbKeywords,
 } = require("../controllers/items");
 const {
   validateItem,
-  validateTags,
+  validateMoods,
   validateId,
 } = require("../middlewares/validation");
 
-// No auth here, since handled upstream
-
+// POST new item
 router.post("/", validateItem, createItem);
-router.post("/import-tmdb", importFromTmdb);
-router.patch("/:itemId", validateId, updateItem);
-router.patch("/:itemId/tags", validateTags, updateItemTags);
 
-// Endpoint to fetch TMDB keywords for a given tmdbId and mediaType
+// POST import from TMDB
+router.post("/import-tmdb", importFromTmdb);
+
+// PATCH general item fields (title, poster, etc.)
+router.patch("/:itemId", validateId, updateItem);
+
+// PATCH only moods for likes-style
+router.patch("/:itemId/moods", validateId, validateMoods, updateItemMoods);
+
+// GET TMDB keywords
 router.get("/tmdb-keywords", getTmdbKeywords);
+
+// DELETE item
 router.delete("/:itemId", validateId, deleteItem);
 
 module.exports = router;
