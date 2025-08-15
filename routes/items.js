@@ -20,15 +20,15 @@ router.post("/", validateItem, createItem);
 router.post("/import-tmdb", importFromTmdb);
 
 // PATCH general item fields (title, poster, etc.)
-router.patch("/:itemId", validateId, updateItem);
+router.patch("/:_id", validateId, updateItem);
 
 // PATCH only moods for likes-style
-router.patch("/:itemId/moods", validateId, validateMoods, updateItemMoods);
+router.patch("/:_id/moods", validateId, validateMoods, updateItemMoods);
 
 // GET TMDB keywords
 router.get("/tmdb-keywords", getTmdbKeywords);
 
 // DELETE item
-router.delete("/:itemId", validateId, deleteItem);
+router.delete("/:_id", validateId, deleteItem);
 
 module.exports = router;

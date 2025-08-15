@@ -24,10 +24,10 @@ const getUserItems = (req, res, next) => {
 
 // CREATE new item
 const createItem = (req, res, next) => {
-  const { itemId, title, mediaType, poster, length, moods } = req.body;
+  const { _id, title, mediaType, poster, length, moods } = req.body;
 
   Item.create({
-    _id: itemId,
+    _id: _id,
     title,
     mediaType,
     poster,
@@ -42,13 +42,13 @@ const createItem = (req, res, next) => {
 
 // IMPORT from TMDb
 const importFromTmdb = (req, res, next) => {
-  const { itemId, mediaType } = req.body;
+  const { _id, mediaType } = req.body;
 
-  importTmdbItem(itemId, mediaType)
+  importTmdbItem(_id, mediaType)
     .then((itemData) => {
       const itemToCreate = {
         ...itemData,
-        _id: itemId,
+        _id: _id,
         moods: [], // fresh moods
       };
       return Item.create(itemToCreate);
@@ -65,7 +65,7 @@ const updateItem = (req, res, next) => {
     if (req.body[field] !== undefined) updates[field] = req.body[field];
   });
 
-  Item.findById(req.params.itemId)
+  Item.findById(req.params._id)
     .orFail(() => new NotFoundError(ERROR_MESSAGES.NOT_FOUND))
     .then((item) => {
       Object.assign(item, updates);
@@ -82,7 +82,7 @@ const updateItemMoods = (req, res, next) => {
   const { moods } = req.body; // array of mood names
   const userId = req.user._id;
 
-  Item.findById(req.params.itemId)
+  Item.findById(req.params._id)
     .orFail(() => new NotFoundError(ERROR_MESSAGES.NOT_FOUND))
     .then((item) => {
       // Remove user from all moods first
@@ -115,7 +115,7 @@ const updateItemMoods = (req, res, next) => {
 
 // DELETE item (if needed)
 const deleteItem = (req, res, next) => {
-  Item.findById(req.params.itemId)
+  Item.findById(req.params._id)
     .orFail(() => new NotFoundError(ERROR_MESSAGES.NOT_FOUND))
     .then((item) =>
       item
@@ -127,13 +127,11 @@ const deleteItem = (req, res, next) => {
 
 // TMDb keywords
 const getTmdbKeywords = (req, res, next) => {
-  const { itemId, mediaType } = req.query;
-  if (!itemId || !mediaType)
-    return res
-      .status(400)
-      .json({ message: "itemId and mediaType are required" });
+  const { _id, mediaType } = req.query;
+  if (!_id || !mediaType)
+    return res.status(400).json({ message: "_id and mediaType are required" });
 
-  fetchTmdbKeywords(itemId, mediaType)
+  fetchTmdbKeywords(_id, mediaType)
     .then((keywords) => res.status(ERROR_CODES.OK).json({ keywords }))
     .catch(next);
 };
