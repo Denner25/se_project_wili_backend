@@ -32,8 +32,12 @@ const createItem = (req, res, next) => {
     mediaType,
     poster,
     length,
+    // adjusted moods array to match schema
     moods: Array.isArray(moods)
-      ? moods.map((name) => ({ name, users: [] }))
+      ? moods.map((m) => ({
+          name: m.name,
+          users: m.users || [],
+        }))
       : [],
   })
     .then((item) => res.status(ERROR_CODES.CREATED).send({ data: item }))
@@ -59,11 +63,20 @@ const importFromTmdb = (req, res, next) => {
 
 // UPDATE basic item fields (title, mediaType, poster, length)
 const updateItem = (req, res, next) => {
-  const allowedUpdates = ["title", "mediaType", "poster", "length"];
+  const allowedUpdates = ["title", "mediaType", "poster", "length", "moods"];
   const updates = {};
+
   allowedUpdates.forEach((field) => {
     if (req.body[field] !== undefined) updates[field] = req.body[field];
   });
+
+  // 🔹 Normalize moods if present
+  if (updates.moods && Array.isArray(updates.moods)) {
+    updates.moods = updates.moods.map((m) => ({
+      name: typeof m === "string" ? m : m.name,
+      users: Array.isArray(m.users) ? m.users : [],
+    }));
+  }
 
   Item.findById(req.params._id)
     .orFail(() => new NotFoundError(ERROR_MESSAGES.NOT_FOUND))
@@ -79,32 +92,17 @@ const updateItem = (req, res, next) => {
 
 // UPDATE moods (likes-style)
 const updateItemMoods = (req, res, next) => {
-  const { moods } = req.body; // array of mood names
-  const userId = req.user._id;
+  const { moods } = req.body;
 
   Item.findById(req.params._id)
     .orFail(() => new NotFoundError(ERROR_MESSAGES.NOT_FOUND))
     .then((item) => {
-      // Remove user from all moods first
-      item.moods.forEach((m) => {
-        m.users = m.users.filter((id) => id.toString() !== userId.toString());
-      });
-
-      // Add user to selected moods
-      if (Array.isArray(moods)) {
-        moods.forEach((moodName) => {
-          let existing = item.moods.find((m) => m.name === moodName);
-          if (existing) {
-            existing.users.push(userId);
-          } else {
-            item.moods.push({ name: moodName, users: [userId] });
-          }
-        });
-      }
-
-      // Remove moods with no users
-      item.moods = item.moods.filter((m) => m.users.length > 0);
-
+      item.moods = Array.isArray(moods)
+        ? moods.map((m) => ({
+            name: typeof m === "string" ? m : m.name,
+            users: Array.isArray(m.users) ? m.users : [],
+          }))
+        : [];
       return item.save();
     })
     .then((updatedItem) =>
