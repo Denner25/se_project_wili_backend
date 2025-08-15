@@ -1,15 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
-// Subdocument for each mood
-const moodSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true, maxlength: 30 },
-    users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-  },
-  { _id: false }
-);
-
 const itemSchema = new mongoose.Schema(
   {
     _id: { type: Number, required: true }, // TMDb numeric ID
@@ -27,6 +18,15 @@ const itemSchema = new mongoose.Schema(
     moods: { type: [moodSchema], default: [] }, // Likes-style
   },
   { timestamps: true, _id: false }
+);
+
+// Subdocument for each mood
+const moodSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true, maxlength: 30 },
+    users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  },
+  { _id: false }
 );
 
 module.exports = mongoose.model("Item", itemSchema);
