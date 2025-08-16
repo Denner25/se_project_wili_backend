@@ -1,19 +1,31 @@
-# WTWR (What to Wear?): Back End
+# WILI – Would I Like It? - Backend
 
-This is the 15th project of the Software Engineering program at TripleTen. This sprint focused on deployment to a remote server, stabilization with PM2, port configuation with nginx, further developing the RESTful Express API that serves the WTWR application by adding middlewares for centralized error handling, early validation of inbound server data and logging with the Winston library.
+This is the backend for WILI, the final project of the TripleTen Software Engineering program and my first creative project. It powers the frontend application where users can search movies and animes via the TMDB API and mark them with moods and genres for a more expressive experience.
 
-## Deployed application:
+## Features
 
-Frontend: https://wtwr.nya.pub
-Backend: https://api.wtwr.nya.pub
+- **User authentication:** JWT-based signup, login, and token validation.
+- **Items & moods:** Each item stores mood objects with name and users array, allowing multiple users to tag the same item independently.
+- **Per-user mood handling:** Only the current user’s mood selections are reflected in their profile and top moods.
+- **Safe deletion:** Removing a mood from an item only removes the current user from that mood’s users array; the item is deleted from the server only if no users remain for any mood. |
 
-## Front-end repository:
+- **MongoDB + Mongoose:** Schema design includes Item with moods as a subdocument and users as an array for tracking multiple user selections.
+- **Robust validation:** Ensures that only authenticated users can add, edit, or remove moods.
 
-https://github.com/Denner25/se_project_react
+## Technical highlights
 
-## Project features
+- **Express.js server** with modular routes for users, items, and moods.
+- **State consistency:** The backend logic supports per-user deletion of moods and proper updating of shared items.
+- **Integration-friendly:** Designed to work seamlessly with the frontend via REST endpoints; supports dynamic updates without losing other users’ data.
 
-- **Express.js** — Web framework for routing and middleware
-- **MongoDB** — NoSQL database and schema validation for users and items
-- **JWT Authentication** — Secure login and protected routes
-- **Postman** — For API testing
+## Future Improvements
+
+- Track item popularity and dynamically suggest posters or highlights.
+- Add mood statistics.
+
+## Tech Stack
+
+- Node.js / Express.js
+- MongoDB / Mongoose
+- JWT Authentication
+- REST API

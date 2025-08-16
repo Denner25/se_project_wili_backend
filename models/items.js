@@ -1,12 +1,29 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
+const moodSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Mood name is required"],
+      trim: true,
+      maxlength: 30,
+    },
+    users: [
+      {
+        type: String,
+      },
+    ],
+  },
+  { _id: false }
+);
+
 const itemSchema = new mongoose.Schema(
   {
     _id: {
-      // Use TMDb numeric ID as Mongo _id
+      // TMDb numeric ID as Mongo _id
       type: Number,
-      required: true,
+      required: [true, "_id is required"],
     },
     title: {
       type: String,
@@ -32,14 +49,9 @@ const itemSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    tags: {
-      type: [String],
+    moods: {
+      type: [moodSchema], // Likes-style subdocuments
       default: [],
-    },
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
     },
   },
   { timestamps: true, _id: false }

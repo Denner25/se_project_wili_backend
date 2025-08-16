@@ -1,122 +1,105 @@
 const Item = require("../models/items");
-const { importTmdbItem } = require("../utils/tmdb.js");
+const { importTmdbItem } = require("../utils/tmdb");
 const { ERROR_CODES, ERROR_MESSAGES } = require("../utils/errors");
 const NotFoundError = require("../errors/not-found-err");
-const ForbiddenError = require("../errors/forbidden-err");
 const {
   handleValidationAndCastError,
   handleCastAndNotFoundError,
 } = require("../utils/constants");
 const { fetchTmdbKeywords } = require("../utils/tmdb");
 
-// Get all items (public route)
+// GET all items (public)
 const getItems = (req, res, next) => {
   Item.find({})
     .then((items) => res.status(ERROR_CODES.OK).send({ data: items }))
     .catch(next);
 };
 
-// Get only current user's items (private route)
+// GET current user's items (private)
 const getUserItems = (req, res, next) => {
-  Item.find({ owner: req.user._id })
+  Item.find({ "moods.users": req.user._id })
     .then((items) => res.status(ERROR_CODES.OK).send({ data: items }))
     .catch(next);
 };
 
+// CREATE new item
 const createItem = (req, res, next) => {
-  const { itemId, title, mediaType, poster, length, tags } = req.body;
+  const { _id, title, mediaType, poster, length, moods } = req.body;
+
   Item.create({
-    _id: itemId,
+    _id: _id,
     title,
     mediaType,
     poster,
     length,
-    tags: tags || [],
-    owner: req.user._id,
+    // adjusted moods array to match schema
+    moods: Array.isArray(moods)
+      ? moods.map((m) => ({
+          name: m.name,
+          users: m.users || [],
+        }))
+      : [],
   })
     .then((item) => res.status(ERROR_CODES.CREATED).send({ data: item }))
     .catch((err) => handleValidationAndCastError(err, next));
 };
 
+// IMPORT from TMDb
 const importFromTmdb = (req, res, next) => {
-  const { itemId, mediaType } = req.body;
+  const { _id, mediaType } = req.body;
 
-  importTmdbItem(itemId, mediaType)
+  importTmdbItem(_id, mediaType)
     .then((itemData) => {
-      return Item.create(
-        Object.assign({}, itemData, { _id: itemId, owner: req.user._id })
-      );
+      const itemToCreate = {
+        ...itemData,
+        _id: _id,
+        moods: [], // fresh moods
+      };
+      return Item.create(itemToCreate);
     })
     .then((item) => res.status(ERROR_CODES.CREATED).send({ data: item }))
     .catch((err) => handleValidationAndCastError(err, next));
 };
 
-const updateItem = (req, res, next) => {
-  const allowedUpdates = ["title", "mediaType", "poster", "length"];
-  const updates = {};
-  allowedUpdates.forEach((field) => {
-    if (req.body[field] !== undefined) {
-      updates[field] = req.body[field];
-    }
-  });
+// UPDATE moods (likes-style)
+const updateItemMoods = (req, res, next) => {
+  const { moods } = req.body;
 
-  Item.findById(req.params.itemId)
-    .orFail(() => new NotFoundError(ERROR_MESSAGES.NOT_FOUND))
+  Item.findById(req.params._id)
+    .orFail(() => new NotFoundError("Item not found"))
     .then((item) => {
-      if (item.owner.toString() !== req.user._id) {
-        throw new ForbiddenError(ERROR_MESSAGES.FORBIDDEN);
-      }
-      Object.assign(item, updates);
+      // Normalize and replace moods
+      item.moods = Array.isArray(moods)
+        ? moods.map((m) => ({
+            name: typeof m === "string" ? m : m.name,
+            users: Array.isArray(m.users) ? m.users : [],
+          }))
+        : [];
       return item.save();
     })
-    .then((updatedItem) =>
-      res.status(ERROR_CODES.OK).send({ data: updatedItem })
-    )
+    .then((updatedItem) => res.status(200).send({ data: updatedItem }))
     .catch((err) => handleValidationAndCastError(err, next));
 };
 
-const updateItemTags = (req, res, next) => {
-  const { tags } = req.body;
-  Item.findByIdAndUpdate(
-    req.params.itemId,
-    { tags: Array.isArray(tags) ? tags : [] },
-    { new: true, runValidators: true }
-  )
-    .orFail(() => new NotFoundError(ERROR_MESSAGES.NOT_FOUND))
-    .then((item) => {
-      if (item.owner.toString() !== req.user._id) {
-        throw new ForbiddenError(ERROR_MESSAGES.FORBIDDEN);
-      }
-      res.status(ERROR_CODES.OK).send({ data: item });
-    })
-    .catch((err) => handleValidationAndCastError(err, next));
-};
-
+// DELETE item (if needed)
 const deleteItem = (req, res, next) => {
-  Item.findById(req.params.itemId)
+  Item.findById(req.params._id)
     .orFail(() => new NotFoundError(ERROR_MESSAGES.NOT_FOUND))
-    .then((item) => {
-      if (item.owner.toString() !== req.user._id) {
-        throw new ForbiddenError(ERROR_MESSAGES.FORBIDDEN);
-      }
-      return item
+    .then((item) =>
+      item
         .deleteOne()
-        .then(() => res.status(ERROR_CODES.OK).send({ data: item }));
-    })
+        .then(() => res.status(ERROR_CODES.OK).send({ data: item }))
+    )
     .catch((err) => handleCastAndNotFoundError(err, next));
 };
 
-// ...existing code...
-
-// Controller to fetch TMDB keywords for a given itemId and mediaType
+// TMDb keywords
 const getTmdbKeywords = (req, res, next) => {
-  const { itemId, mediaType } = req.query;
-  if (!itemId || !mediaType) {
-    return res
-      .status(400)
-      .json({ message: "itemId and mediaType are required" });
-  }
-  fetchTmdbKeywords(itemId, mediaType)
+  const { _id, mediaType } = req.query;
+  if (!_id || !mediaType)
+    return res.status(400).json({ message: "_id and mediaType are required" });
+
+  fetchTmdbKeywords(_id, mediaType)
     .then((keywords) => res.status(ERROR_CODES.OK).json({ keywords }))
     .catch(next);
 };
@@ -126,8 +109,7 @@ module.exports = {
   getUserItems,
   createItem,
   importFromTmdb,
-  updateItem,
-  updateItemTags,
+  updateItemMoods,
   deleteItem,
   getTmdbKeywords,
 };

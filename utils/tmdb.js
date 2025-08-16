@@ -3,11 +3,11 @@ const fetch = require("node-fetch");
 const BASE_URL = "https://api.themoviedb.org/3";
 const API_KEY = process.env.TMDB_API_KEY;
 
-function importTmdbItem(itemId, mediaType) {
+function importTmdbItem(_id, mediaType) {
   const url =
     mediaType === "movie"
-      ? `${BASE_URL}/movie/${itemId}?api_key=${API_KEY}`
-      : `${BASE_URL}/tv/${itemId}?api_key=${API_KEY}`;
+      ? `${BASE_URL}/movie/${_id}?api_key=${API_KEY}`
+      : `${BASE_URL}/tv/${_id}?api_key=${API_KEY}`;
 
   return fetch(url)
     .then((res) => {
@@ -17,7 +17,7 @@ function importTmdbItem(itemId, mediaType) {
       return res.json();
     })
     .then((data) => ({
-      _id: itemId,
+      _id: _id,
       title: data.title || data.name,
       mediaType,
       poster: data.poster_path
@@ -32,11 +32,11 @@ function importTmdbItem(itemId, mediaType) {
 }
 
 // Fetch keywords for a movie or TV show from TMDB
-function fetchTmdbKeywords(itemId, mediaType) {
+function fetchTmdbKeywords(_id, mediaType) {
   const url =
     mediaType === "movie"
-      ? `${BASE_URL}/movie/${itemId}/keywords?api_key=${API_KEY}`
-      : `${BASE_URL}/tv/${itemId}/keywords?api_key=${API_KEY}`;
+      ? `${BASE_URL}/movie/${_id}/keywords?api_key=${API_KEY}`
+      : `${BASE_URL}/tv/${_id}/keywords?api_key=${API_KEY}`;
 
   return fetch(url)
     .then((res) => {
