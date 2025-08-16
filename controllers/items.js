@@ -61,42 +61,14 @@ const importFromTmdb = (req, res, next) => {
     .catch((err) => handleValidationAndCastError(err, next));
 };
 
-// UPDATE basic item fields (title, mediaType, poster, length)
-const updateItem = (req, res, next) => {
-  const allowedUpdates = ["title", "mediaType", "poster", "length", "moods"];
-  const updates = {};
-
-  allowedUpdates.forEach((field) => {
-    if (req.body[field] !== undefined) updates[field] = req.body[field];
-  });
-
-  // 🔹 Normalize moods if present
-  if (updates.moods && Array.isArray(updates.moods)) {
-    updates.moods = updates.moods.map((m) => ({
-      name: typeof m === "string" ? m : m.name,
-      users: Array.isArray(m.users) ? m.users : [],
-    }));
-  }
-
-  Item.findById(req.params._id)
-    .orFail(() => new NotFoundError(ERROR_MESSAGES.NOT_FOUND))
-    .then((item) => {
-      Object.assign(item, updates);
-      return item.save();
-    })
-    .then((updatedItem) =>
-      res.status(ERROR_CODES.OK).send({ data: updatedItem })
-    )
-    .catch((err) => handleValidationAndCastError(err, next));
-};
-
 // UPDATE moods (likes-style)
 const updateItemMoods = (req, res, next) => {
   const { moods } = req.body;
 
   Item.findById(req.params._id)
-    .orFail(() => new NotFoundError(ERROR_MESSAGES.NOT_FOUND))
+    .orFail(() => new NotFoundError("Item not found"))
     .then((item) => {
+      // Normalize and replace moods
       item.moods = Array.isArray(moods)
         ? moods.map((m) => ({
             name: typeof m === "string" ? m : m.name,
@@ -105,9 +77,7 @@ const updateItemMoods = (req, res, next) => {
         : [];
       return item.save();
     })
-    .then((updatedItem) =>
-      res.status(ERROR_CODES.OK).send({ data: updatedItem })
-    )
+    .then((updatedItem) => res.status(200).send({ data: updatedItem }))
     .catch((err) => handleValidationAndCastError(err, next));
 };
 
@@ -139,7 +109,6 @@ module.exports = {
   getUserItems,
   createItem,
   importFromTmdb,
-  updateItem,
   updateItemMoods,
   deleteItem,
   getTmdbKeywords,
