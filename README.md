@@ -9,7 +9,7 @@ This is the backend for WILI, the final project of the TripleTen Software Engine
 - **Per-user mood handling:** Only the current user’s mood selections are reflected in their profile and top moods.
 - **Safe deletion:** Removing a mood from an item only removes the current user from that mood’s users array; the item is deleted from the server only if no users remain for any mood. |
 
-- **MongoDB + Mongoose:** Schema design includesa nested mood subdocument consisting of an object with the name string and an array of all users who marked that mood for tracking multiple user selections.
+- **MongoDB + Mongoose:** Schema design includes a nested mood subdocument consisting of an object with the name string and an array of all users who marked that mood for tracking multiple user selections.
 - **Robust validation:** Ensures that only authenticated users can add, edit, or remove moods.
 
 ## Technical highlights
