@@ -2,6 +2,10 @@
 
 This is the backend for WILI, the final project of the TripleTen Software Engineering program and my first creative project. It powers the frontend application where users can search movies and animes via the TMDB API and mark them with moods and genres for a more expressive experience.
 
+## Frontend repository
+
+https://github.com/Denner25/se_project_wili
+
 ## Features
 
 - **User authentication:** JWT-based signup, login, and token validation.
