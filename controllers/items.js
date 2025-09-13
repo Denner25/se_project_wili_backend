@@ -104,6 +104,19 @@ const getTmdbKeywords = (req, res, next) => {
     .catch(next);
 };
 
+const getLatestItems = (req, res) => {
+  Item.find()
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .then((items) => {
+      const updated = items.map((item) => {
+        if (item.poster) item.poster = item.poster.replace("/w92/", "/w500/");
+        return item;
+      });
+      res.json(updated);
+    });
+};
+
 module.exports = {
   getItems,
   getUserItems,
@@ -112,4 +125,5 @@ module.exports = {
   updateItemMoods,
   deleteItem,
   getTmdbKeywords,
+  getLatestItems,
 };

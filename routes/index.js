@@ -4,7 +4,11 @@ const userRouter = require("./users");
 const itemsRouter = require("./items");
 const { ERROR_MESSAGES } = require("../utils/errors");
 const { createUser, login } = require("../controllers/users");
-const { getItems, getUserItems } = require("../controllers/items");
+const {
+  getItems,
+  getUserItems,
+  getLatestItems,
+} = require("../controllers/items");
 const { validateUser, validateLogin } = require("../middlewares/validation");
 const NotFoundError = require("../errors/not-found-err");
 
@@ -12,6 +16,7 @@ const NotFoundError = require("../errors/not-found-err");
 router.post("/signin", validateLogin, login);
 router.post("/signup", validateUser, createUser);
 router.get("/items", getItems); // Public: all items for main page
+router.get("/items/latest", getLatestItems);
 
 // Authenticated routes
 router.use(auth);
