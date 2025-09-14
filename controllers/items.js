@@ -110,7 +110,7 @@ const getLatestItems = (req, res) => {
     .limit(5)
     .then((items) => {
       const updated = items.map((item) => {
-        if (item.poster) item.poster = item.poster.replace("/w92/", "/w500/");
+        if (item.poster) item.poster = item.poster.replace("/w92/", "/w780/");
         return item;
       });
       res.json(updated);
