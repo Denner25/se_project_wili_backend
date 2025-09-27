@@ -81,10 +81,25 @@ const login = (req, res, next) => {
     .catch((err) => handleLoginError(err, next));
 };
 
+// GET /users/:id
+const getUserById = (req, res, next) => {
+  const { id } = req.params;
+
+  User.findById(id)
+    .orFail(() => new NotFoundError(ERROR_MESSAGES.NOT_FOUND))
+    .then((user) => {
+      const userObj = user.toObject();
+      delete userObj.password;
+      res.status(ERROR_CODES.OK).send(userObj);
+    })
+    .catch((err) => handleCastAndNotFoundError(err, next));
+};
+
 module.exports = {
   getUsers,
   createUser,
   getCurrentUser,
   updateProfile,
   login,
+  getUserById,
 };
