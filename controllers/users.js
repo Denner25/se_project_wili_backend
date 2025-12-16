@@ -14,9 +14,19 @@ const {
 
 // GET /users (optional for admin use)
 const getUsers = (req, res, next) => {
-  User.find({})
+  const { q } = req.query;
+  const filter = q ? { name: { $regex: q, $options: "i" } } : {};
+
+  User.find(filter)
+    .limit(10)
     .then((users) =>
-      res.status(ERROR_CODES.OK).send(users.map(({ password, ...u }) => u))
+      res.status(ERROR_CODES.OK).send(
+        users.map((u) => {
+          const obj = u.toObject();
+          delete obj.password;
+          return obj;
+        })
+      )
     )
     .catch(next);
 };
