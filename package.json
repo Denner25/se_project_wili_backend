@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Denner25/se_project_wili_backend#readme",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.2",
     "celebrate": "^15.0.3",
     "cors": "^2.8.5",

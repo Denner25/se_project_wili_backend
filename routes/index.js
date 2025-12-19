@@ -2,6 +2,7 @@ const router = require("express").Router();
 const auth = require("../middlewares/auth");
 const userRouter = require("./users");
 const itemsRouter = require("./items");
+const wiliRouter = require("./wili");
 const { ERROR_MESSAGES } = require("../utils/errors");
 const { createUser, login } = require("../controllers/users");
 const {
@@ -18,6 +19,7 @@ router.post("/signup", validateUser, createUser);
 router.get("/items", getItems); // Public: all items for main page
 router.get("/items/latest", getLatestItems);
 router.use("/users", userRouter);
+router.use("/wili", wiliRouter);
 
 // Authenticated routes
 router.use(auth);

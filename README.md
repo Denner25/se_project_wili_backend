@@ -1,6 +1,6 @@
 # WILI – Would I Like It? - Backend
 
-This is the backend for WILI, the final project of the TripleTen Software Engineering program and my first creative project. It powers the frontend application where users can search movies and animes via the TMDB API and mark them with moods and genres for a more expressive experience.
+This is the backend for WILI, the final project of the TripleTen Software Engineering program and my first creative project. It powers the frontend application where users can search movies and animes via the TMDB API and mark them with moods and genres for a more expressive experience. Through integration of an AI API (currently Gemini), it analyzes user liked items and suggests if they would like a candidate item.
 
 ## Frontend repository
 
