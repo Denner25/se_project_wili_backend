@@ -33,3 +33,4 @@ https://github.com/Denner25/se_project_wili
 - MongoDB / Mongoose
 - JWT Authentication
 - REST API
+- AI integration
