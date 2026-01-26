@@ -13,6 +13,13 @@ const app = express();
 const { PORT = 3001, MONGO_URI = "mongodb://127.0.0.1:27017/wili_db" } =
   process.env;
 
+app.get("/health", (_req, res) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(500).json({ status: "db-disconnected" });
+  }
+  res.status(200).json({ status: "ok" });
+});
+
 mongoose
   .connect(MONGO_URI)
   .then(() => {
