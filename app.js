@@ -8,16 +8,23 @@ const { errors } = require("celebrate");
 const mainRouter = require("./routes/index");
 const { errorHandler } = require("./middlewares/errorHandler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
+const Item = require("./models/items");
 
 const app = express();
 const { PORT = 3001, MONGO_URI = "mongodb://127.0.0.1:27017/wili_db" } =
   process.env;
 
-app.get("/health", (_req, res) => {
-  if (mongoose.connection.readyState !== 1) {
-    return res.status(500).json({ status: "db-disconnected" });
+app.get("/health", async (_req, res) => {
+  try {
+    const items = await Item.find({}).limit(1);
+    if (!items || items.length === 0) {
+      // Treat empty result as failure
+      throw new Error("no items found");
+    }
+    res.status(200).json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ status: "unhealthy", message: err.message });
   }
-  res.status(200).json({ status: "ok" });
 });
 
 mongoose
