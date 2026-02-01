@@ -16,11 +16,15 @@ const { PORT = 3001, MONGO_URI = "mongodb://127.0.0.1:27017/wili_db" } =
 
 app.get("/health", async (_req, res) => {
   try {
-    const items = await Item.find({}).limit(1);
-    if (!items || items.length === 0) {
-      // Treat empty result as failure
+    // 1. Ensure DB is actually reachable
+    await Item.db.admin().ping();
+
+    // 2. Check for real items
+    const items = await Item.find({}).limit(1).lean();
+    if (!items || items.length === 0 || !items[0]._id) {
       throw new Error("no items found");
     }
+
     res.status(200).json({ status: "ok" });
   } catch (err) {
     res.status(500).json({ status: "unhealthy", message: err.message });
